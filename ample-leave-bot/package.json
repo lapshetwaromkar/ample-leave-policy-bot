@@ -1,0 +1,16 @@
+{
+  "name": "ample-leave-bot",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "openai": "^4.30.0",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.4.54"
+  }
+}

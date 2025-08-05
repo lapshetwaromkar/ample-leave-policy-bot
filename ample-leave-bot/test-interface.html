@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ample Leave Policy Bot - Test Interface</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .chat-container {
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        .message {
+            margin-bottom: 20px;
+            padding: 16px 20px;
+            border-radius: 18px;
+            max-width: 85%;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: right;
+            margin-left: auto;
+            border-bottom-right-radius: 6px;
+        }
+        .bot-message {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            color: #2c3e50;
+            margin-right: auto;
+            border-bottom-left-radius: 6px;
+            border: 1px solid #e1e8ed;
+        }
+        
+        /* Enhanced formatting for bot responses */
+        .bot-message h3 {
+            color: #495057;
+            margin: 15px 0 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+        
+        .bot-message ul {
+            margin: 12px 0;
+            padding-left: 0;
+            list-style: none;
+        }
+        
+        .bot-message li {
+            margin: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .bot-message li:before {
+            content: "▶";
+            color: #667eea;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        
+        .bot-message strong {
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .bot-message .highlight-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .bot-message p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        #questionInput {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        #questionInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        #askButton {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        #askButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        #askButton:active {
+            transform: translateY(0);
+        }
+        #askButton:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .loading {
+            color: #667eea;
+            font-style: italic;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e1e8ed;
+            display: inline-block;
+        }
+        .examples {
+            margin-top: 25px;
+            padding: 24px;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 12px;
+            border: 2px solid #e1e8ed;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .examples h3 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #495057;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+        }
+        .examples ul {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .examples li {
+            margin-bottom: 0;
+            cursor: pointer;
+            color: #667eea;
+            padding: 12px 16px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            background: white;
+            border: 2px solid #e1e8ed;
+            font-weight: 500;
+            text-align: center;
+        }
+        .examples li:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            border-color: transparent;
+        }
+        
+        /* Scrollbar styling */
+        .chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-container::-webkit-scrollbar-track {
+            background: #f1f3f4;
+            border-radius: 4px;
+        }
+        .chat-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4c93);
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            body {
+                margin: 15px;
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .examples ul {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Ample Leave Policy Bot</h1>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot-message">
+                <strong>Bot:</strong> Hi! I'm your leave policy assistant. Ask me anything about vacation days, sick leave, maternity/paternity leave, holidays, or other time-off policies.
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="questionInput" placeholder="Ask about leave policies..." />
+            <button id="askButton" onclick="askQuestion()">Ask</button>
+        </div>
+        
+        <div class="examples">
+            <h3>📝 Example Questions:</h3>
+            <ul>
+                <li onclick="setQuestion('How many vacation days do I get per year?')">How many vacation days do I get per year?</li>
+                <li onclick="setQuestion('What is the sick leave policy?')">What is the sick leave policy?</li>
+                <li onclick="setQuestion('How long is maternity leave?')">How long is maternity leave?</li>
+                <li onclick="setQuestion('What holidays does the company observe?')">What holidays does the company observe?</li>
+                <li onclick="setQuestion('How do I request time off?')">How do I request time off?</li>
+                <li onclick="setQuestion('Can I carry over vacation days?')">Can I carry over vacation days?</li>
+                <li onclick="setQuestion('What is bereavement leave?')">What is bereavement leave?</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const questionInput = document.getElementById('questionInput');
+        const askButton = document.getElementById('askButton');
+
+        function formatBotResponse(text) {
+            // Convert markdown-style formatting to HTML
+            let formatted = text
+                // Convert **bold** to <strong>
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                // Convert line breaks - be more conservative
+                .replace(/\n\n+/g, '<br><br>')
+                .replace(/\n/g, '<br>')
+                // Convert headings (**Title:**) to h3 FIRST before bullet points
+                .replace(/<strong>(.*?):<\/strong>/g, '<h3>$1:</h3>')
+                // Convert bullet points (• ) to proper list items - more specific pattern
+                .replace(/(<br>|^)• (.*?)(?=<br>|$)/gm, '$1<li>$2</li>')
+                // Convert numbered lists (1. 2. etc) - more specific pattern  
+                .replace(/(<br>|^)(\d+)\. (.*?)(?=<br>|$)/gm, '$1<li class="numbered">$3</li>')
+                // Clean up extra breaks before and after list items
+                .replace(/<br><li>/g, '<li>')
+                .replace(/<\/li><br>/g, '</li>')
+                // Wrap consecutive list items in ul tags
+                .replace(/(<li>.*?<\/li>)(\s*<li>.*?<\/li>)*/g, function(match) {
+                    return '<ul>' + match + '</ul>';
+                })
+                // Clean up multiple consecutive breaks
+                .replace(/(<br>\s*){3,}/g, '<br><br>')
+                // Remove breaks right after headings
+                .replace(/<\/h3><br>/g, '</h3>')
+                // Highlight numbers in bold (like **15 days**)
+                .replace(/<strong>(\d+)\s+(days?|weeks?|months?|years?)<\/strong>/g, '<span class="highlight-number">$1 $2</span>')
+                // Clean up any stray breaks at the start
+                .replace(/^<br>+/, '');
+
+            return formatted;
+        }
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            if (isUser) {
+                messageDiv.innerHTML = `<strong>You:</strong> ${content}`;
+            } else {
+                const formattedContent = formatBotResponse(content);
+                messageDiv.innerHTML = `<strong>Bot:</strong> ${formattedContent}`;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function setQuestion(question) {
+            questionInput.value = question;
+            questionInput.focus();
+        }
+
+        async function askQuestion() {
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            // Add user message
+            addMessage(question, true);
+            
+            // Clear input and disable button
+            questionInput.value = '';
+            askButton.disabled = true;
+            askButton.textContent = 'Asking...';
+            
+            // Add loading message
+            addMessage('<span class="loading">Thinking...</span>');
+
+            try {
+                const response = await fetch('http://localhost:3000/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+
+                const data = await response.json();
+                
+                // Remove loading message
+                chatContainer.lastChild.remove();
+                
+                if (response.ok) {
+                    addMessage(data.answer);
+                } else {
+                    addMessage(`Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                // Remove loading message
+                chatContainer.lastChild.remove();
+                addMessage(`Error: Could not connect to server. Make sure the server is running on http://localhost:3000`, false);
+            }
+
+            // Re-enable button
+            askButton.disabled = false;
+            askButton.textContent = 'Ask';
+            questionInput.focus();
+        }
+
+        // Allow Enter key to submit
+        questionInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                askQuestion();
+            }
+        });
+
+        // Focus on input when page loads
+        window.onload = function() {
+            questionInput.focus();
+        };
+    </script>
+</body>
+</html> 
