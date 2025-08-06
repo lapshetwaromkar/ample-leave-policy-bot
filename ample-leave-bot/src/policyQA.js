@@ -23,7 +23,8 @@ export async function answerPolicyQuestion(question, policyText) {
     'leave', 'vacation', 'sick', 'holiday', 'time off', 'pto', 'maternity', 'paternity', 
     'bereavement', 'annual', 'policy', 'days', 'hours', 'total', 'number', 'how many',
     'casual', 'earned', 'marriage', 'paw', 'tenure', 'calendar', 'year', 'get', 'entitled',
-    'remove', 'recalculate', 'update', 'modify', 'above', 'previous', 'context'
+    'remove', 'recalculate', 'update', 'modify', 'above', 'previous', 'context',
+    'holidays', 'holiday', 'august', 'month', 'this month', 'what are', 'which holidays'
   ];
   
   const containsPolicyKeyword = policyKeywords.some(keyword => 
@@ -34,7 +35,8 @@ export async function answerPolicyQuestion(question, policyText) {
   const followUpPhrases = [
     'total number', 'just give me', 'how much', 'what is the', 'tell me the',
     'give me the', 'what are the', 'how many total', 'remove', 'recalculate',
-    'from above', 'above message', 'that list', 'that response'
+    'from above', 'above message', 'that list', 'that response', 'holidays in',
+    'what holidays', 'which holidays', 'holidays this month'
   ];
   
   const isFollowUp = followUpPhrases.some(phrase => 

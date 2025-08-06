@@ -83,12 +83,16 @@ app.event('app_mention', async ({ event, say }) => {
     }
 
     console.log(`Slack question received: ${question}`);
+    console.log(`Context messages count: ${context.messages.length}`);
     
     // Create context-aware prompt
     let contextPrompt = question;
     if (context.messages.length > 0) {
       const recentMessages = context.messages.slice(-4); // Last 2 exchanges
       contextPrompt = `Previous conversation context:\n${recentMessages.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nCurrent question: ${question}`;
+      console.log(`Context-aware prompt created with ${recentMessages.length} previous messages`);
+    } else {
+      console.log(`No previous context found, using direct question`);
     }
     
     const answer = await answerPolicyQuestion(contextPrompt, policyText);
@@ -100,6 +104,7 @@ app.event('app_mention', async ({ event, say }) => {
     
     // Update conversation context
     updateConversationContext(event.channel, event.user, question, answer);
+    console.log(`Updated conversation context for user ${event.user}`);
     
   } catch (error) {
     console.error('Error processing Slack question:', error);

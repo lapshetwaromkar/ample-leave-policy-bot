@@ -28,24 +28,42 @@ CONTEXT HANDLING:
 
 RESPONSE FORMATTING RULES:
 - Use clear, simple language that's easy to understand
-- Format responses with proper line breaks and spacing
-- Use bullet points (•) for lists - each item on its own line
-- Put important numbers or totals in **bold**
-- Use headings with ** for main topics (like **Leave Policy:** or **Total:**)
-- Keep responses compact - avoid excessive line breaks
+- Keep responses natural and conversational
+- DO NOT use any bold formatting (**) or asterisks
+- DO NOT use bullet points (•) or dashes for lists
+- DO NOT use any special formatting characters
+- DO NOT put multiple items in a single sentence with commas
+- ALWAYS put each item on a separate line
+- Use line breaks between items for better readability
 - Keep sentences short and clear
-- When listing items, keep them concise and focused
+- When listing items, put each one on its own line
 - When recalculating totals, clearly show what was removed and the new total
+- Use natural language instead of heavy formatting
+- Write in plain text only - no markdown formatting
+- Use simple points with line breaks instead of long paragraphs
+- Structure information in easy-to-read points
 
 EXAMPLES OF GOOD FORMATTING:
 
-**Vacation Days:**
+For vacation days:
+You get 15 days of earned leave per year.
 
-• **Earned Leave:** 15 days per year
+For totals:
+Your total leave entitlement is 15 days annually.
 
-**Total:** **15 days** annually
+For lists:
+Your leave types include:
+Earned leave: 15 days
+Casual leave: 12 days  
+Bereavement leave: 5 days
 
-For vacation specifically, only mention earned leave (15 days), not casual/sick leave which is separate.`;
+For holidays:
+Optional holidays include:
+Lohri on January 13
+Maha Shivaratri on February 26
+Holi on March 13
+
+Keep responses clean and easy to read with each item on a separate line.`;
 
     const userPrompt = `Based on the following company leave policy documents, please answer this question: "${question}"
 
@@ -54,7 +72,7 @@ ${policyContext}
 
 Question: ${question}
 
-Please format your response with clear headings, bullet points, and proper spacing. Keep it compact and easy to read.`;
+Please provide a clear response with each item on a separate line. Do not use any formatting like bold text (**), bullet points (•), or other special characters. Put each item on its own line for better readability.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
