@@ -1,89 +1,62 @@
 import express from 'express';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { parseAllPolicyDocs } from './documentParser.js';
 import { answerPolicyQuestion } from './policyQA.js';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(express.json());
+app.use(express.static('.'));
 
-// CORS middleware for testing
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
-
-// Load and parse all policy documents on startup
-let policyText = '';
-let isReady = false;
-
-(async () => {
-  console.log('Loading policy documents...');
-  try {
-    policyText = await parseAllPolicyDocs();
-    console.log(`Loaded ${policyText.length} characters from policy documents`);
-    isReady = true;
-  } catch (error) {
-    console.error('Error loading policy documents:', error);
-  }
-})();
-
-// Serve test interface
-app.get('/test', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'test-interface.html'));
-});
+let policyContext = '';
 
 // Health check endpoint
-app.get('/', (req, res) => {
-  res.json({ 
-    status: 'running',
-    ready: isReady,
-    policyTextLength: policyText.length,
-    testInterface: 'http://localhost:3000/test'
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    policyLoaded: policyContext.length > 0
   });
 });
 
-// Ask question endpoint
 app.post('/ask', async (req, res) => {
-  if (!isReady) {
-    return res.status(503).json({ error: 'Server is still loading policy documents. Please try again in a moment.' });
-  }
-
-  const { question } = req.body;
-  if (!question) {
-    return res.status(400).json({ error: 'Missing question in request body' });
-  }
-
-  console.log(`Question received: ${question}`);
-  
   try {
-    const answer = await answerPolicyQuestion(question, policyText);
+    const { question } = req.body;
+    
+    if (!question) {
+      return res.status(400).json({ error: 'Question is required' });
+    }
+
+    console.log(`Question received: ${question}`);
+    
+    const answer = await answerPolicyQuestion(question, policyContext);
     console.log(`Answer generated: ${answer.substring(0, 100)}...`);
-    res.json({ question, answer });
-  } catch (err) {
-    console.error('Error processing question:', err);
-    res.status(500).json({ error: 'Internal server error while processing your question' });
+    
+    res.json({ answer });
+  } catch (error) {
+    console.error('Error processing question:', error);
+    res.status(500).json({ error: 'Failed to process question' });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Ample Leave Policy Bot server running on port ${PORT}`);
-  console.log(`📄 Place your policy PDF files in the /docs folder`);
-  console.log(`🔑 Make sure to set your OPENAI_API_KEY in the .env file`);
-  console.log(`💬 Test with: POST http://localhost:${PORT}/ask`);
-  console.log(`🌐 Test Interface: http://localhost:${PORT}/test`);
+// Load policy documents on startup
+console.log('Loading policy documents...');
+parseAllPolicyDocs().then(context => {
+  policyContext = context;
+  console.log(`Loaded ${context.length} characters from policy documents`);
+  
+  app.listen(PORT, () => {
+    console.log(`🚀 Ample Leave Policy Bot server running on port ${PORT}`);
+    console.log('📄 Place your policy PDF files in the /docs folder');
+    console.log('🔑 Make sure to set your OPENAI_API_KEY in the .env file');
+    console.log('💬 Test with: POST http://localhost:3000/ask');
+    console.log('🌐 Test Interface: http://localhost:3000/test');
+  });
+}).catch(error => {
+  console.error('Failed to load policy documents:', error);
+  process.exit(1);
 }); 
