@@ -7,6 +7,13 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+export async function embedTexts(texts) {
+  const model = process.env.EMBEDDING_MODEL || 'text-embedding-3-small';
+  const input = Array.isArray(texts) ? texts : [texts];
+  const res = await openai.embeddings.create({ model, input });
+  return res.data.map(d => d.embedding);
+}
+
 export async function askOpenAI(question, policyContext) {
   try {
     const systemPrompt = `You are a helpful assistant that answers questions about company leave policies.
@@ -84,7 +91,9 @@ Please provide a clear response with each item on a separate line. Do not use an
       temperature: 0.3,
     });
 
-    return completion.choices[0].message.content;
+    const content = completion.choices?.[0]?.message?.content || '';
+    const usage = completion.usage || {};
+    return { text: content, usage };
   } catch (error) {
     console.error('OpenAI API Error:', error);
     throw new Error('Failed to get response from OpenAI');

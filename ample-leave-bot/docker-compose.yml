@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ample_leave_bot
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/ample_leave_bot
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-dev-admin}
+      USE_RAG: ${USE_RAG:-true}
+      RAG_REBUILD_ON_START: ${RAG_REBUILD_ON_START:-true}
+      DEFAULT_COUNTRY: ${DEFAULT_COUNTRY:-IN}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-1536}
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    command: ["npm","start"]
+
+volumes:
+  db_data:
+
