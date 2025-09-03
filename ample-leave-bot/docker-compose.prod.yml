@@ -56,24 +56,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Load Balancer (Nginx) for API server only
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.prod.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
-    depends_on:
-      - api-server
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          memory: 256M
-        reservations:
-          memory: 128M
+
 
   # API Server (Frontend - Low Traffic)
   api-server:
